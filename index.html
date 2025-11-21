@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Connor Hankins - AI Strategy & Finance Professional">
+    <title>Connor Hankins | AI Finance Strategy</title>
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-blue: #4285F4; /* Google Blue */
+            --accent-green: #0F9D58; /* Google Green */
+            --accent-red: #DB4437;   /* Google Red */
+            --accent-yellow: #F4B400; /* Google Yellow */
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --spacing-unit: 1rem;
+            --max-width: 1000px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- UTILITIES --- */
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            height: 1px;
+            background: #333;
+            flex-grow: 1;
+        }
+
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: #7baaf7;
+            text-decoration: underline;
+        }
+
+        /* --- CANVAS BACKGROUND --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 4rem 0;
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* --- AVATAR STYLING --- */
+        .avatar-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            group: hover;
+        }
+
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-blue);
+            /* Improved shadow for depth */
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.3);
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            transition: var(--transition);
+            display: block;
+        }
+
+        .profile-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            /* Gradient background for a more premium look */
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            border: 3px solid var(--accent-blue);
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.2);
+            z-index: 1;
+        }
+
+        /* Overlay for upload hint */
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 5;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 1rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .avatar-container:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .hero-eyebrow {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.4s forwards;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.6s forwards;
+        }
+
+        .contact-bar {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.8s forwards;
+            font-size: 0.9rem;
+        }
+
+        /* --- METRICS GRID --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-top: 3px solid var(--accent-blue);
+            transition: var(--transition);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .metric-card:nth-child(2) { border-color: var(--accent-red); }
+        .metric-card:nth-child(3) { border-color: var(--accent-yellow); }
+        .metric-card:nth-child(4) { border-color: var(--accent-green); }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- EXPERIENCE TIMELINE --- */
+        .timeline {
+            position: relative;
+            margin: 4rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #333;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -6px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            border: 3px solid var(--bg-color);
+        }
+
+        .job-header {
+            margin-bottom: 1rem;
+        }
+
+        .job-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .company-name {
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+
+        .job-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .job-details {
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+
+        .job-details ul {
+            list-style: none;
+        }
+
+        .job-details li {
+            position: relative;
+            padding-left: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .job-details li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        /* --- SKILLS SECTION --- */
+        .skills-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .skill-category h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .skill-tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            border: 1px solid #333;
+            transition: var(--transition);
+        }
+
+        .skill-tag:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-blue);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            border-top: 1px solid #333;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .metric-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        
+        <header>
+            <div class="avatar-container" onclick="document.getElementById('photo-upload').click()">
+                <!-- Primary Image -->
+                <img 
+                    src="IMG_7967.jpg" 
+                    alt="Connor Hankins" 
+                    class="profile-picture" 
+                    id="profile-img"
+                    onerror="this.style.display='none'; document.getElementById('fallback-avatar').style.display='flex';"
+                >
+                
+                <!-- Fallback Avatar (Shows if image fails) -->
+                <div class="profile-fallback" id="fallback-avatar" style="display:none;">
+                    CH
+                </div>
+
+                <!-- Upload Hint Overlay -->
+                <div class="avatar-overlay">
+                    <span>Update Photo</span>
+                </div>
+                
+                <!-- Hidden File Input for Live Preview -->
+                <input type="file" id="photo-upload" hidden accept="image/*" onchange="updateProfilePhoto(this)">
+            </div>
+
+            <div class="hero-eyebrow">FINANCE STRATEGY & PARTNERSHIPS</div>
+            <h1>Connor Hankins</h1>
+            <p class="hero-subtitle">
+                Senior Finance Manager at Microsoft Azure OpenAI. 
+                Forecasting the economics of the world's largest AI clusters.
+                Translating technical complexity into multi-billion dollar strategies.
+            </p>
+            <div class="contact-bar">
+                <a href="mailto:conmhankins@gmail.com">conmhankins@gmail.com</a>
+                <span>•</span>
+                <a href="https://www.linkedin.com/in/connor-hankins" target="_blank">LinkedIn Profile</a>
+                <span>•</span>
+                <span>(708) 870-1997</span>
+            </div>
+        </header>
+
+        <!-- METRICS DASHBOARD -->
+        <div class="section-title">Impact at Scale</div>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">100k+</div>
+                <div class="metric-label">GPUs Managed in Long-Range Compute Planning</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">$20B+</div>
+                <div class="metric-label">Security Business Portfolio Supported</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">100s Trillions</div>
+                <div class="metric-label">API Tokens Forecasted for GPT Models</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2.5x</div>
+                <div class="metric-label">Increase in Forecasting Accuracy via ML</div>
+            </div>
+        </div>
+
+        <!-- EXPERIENCE -->
+        <div class="section-title">Experience</div>
+        <div class="timeline">
+            
+            <!-- JOB 1 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="job-header">
+                    <div class="job-title">Senior Finance Manager - Azure OpenAI</div>
+                    <div class="company-name">Microsoft | Azure Core AI Finance Team</div>
+                    <div class="job-date">Jan 2025 - Present</div>
+                </div>
+                <div class="job-details">
+                    <ul>
+                        <li>Lead AOAI weekly business reviews for AI Foundry leadership, synthesizing cross-functional insights and customer trends.</li>
+                        <li>Developed methodology to size revenue impacts from capacity constraints, enabling informed GPU prioritization in supply-constrained environments.</li>
+                        <li>Own revenue forecasting for multi-billion dollar AI business, integrating product roadmap insights, ML regressions, and market signals.</li>
+                        <li>Establish forecasting for new model launches (e.g., GPT-4.1, GPT-5) projecting usage across hundreds of trillions of API tokens.</li>
+                        <li>Translate long-range forecasts into datacenter capacity needs (MW, leases, construction) to inform infrastructure investments.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- JOB 2 -->
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background-color: var(--accent-red);"></div>
+                <div class="job-header">
+                    <div class="job-title">Senior Finance Manager - Entra + Intune</div>
+                    <div class="company-name">Microsoft | Cybersecurity Finance</div>
+                    <div class="job-date">Sept 2022 - Jan 2025</div>
+                </div>
+                <div class="job-details">
+                    <ul>
+                        <li>Built product P&Ls for Microsoft Entra and Intune within the $20B+ Security business.</li>
+                        <li>Managed revenue planning and monetization modeling for premium offerings, influencing SKU strategy across tens of millions of users.</li>
+                        <li>Integrated revenue, COGS, and OpEx data to guide critical portfolio investment decisions.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- JOB 3 -->
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background-color: var(--accent-yellow);"></div>
+                <div class="job-header">
+                    <div class="job-title">Financial Analyst - Rotation Program</div>
+                    <div class="company-name">Microsoft | EMEA & Redmond</div>
+                    <div class="job-date">Sept 2020 - Sept 2022</div>
+                </div>
+                <div class="job-details">
+                    <ul>
+                        <li>Roles in EMEA Consumer Sales (Munich), Investor Relations, Marketing Analytics, and Consulting Finance.</li>
+                        <li>Developed ML forecast model incorporating consumer sentiment and supply chain indicators, improving accuracy by 2.5x.</li>
+                        <li>Streamlined competitor earnings analysis, reducing insight-gathering time by 35% for C-suite distribution.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SKILLS -->
+        <div class="section-title">Technical & Strategic Competencies</div>
+        <div class="skills-container">
+            <div class="skill-category">
+                <h3>Analytics & Technology</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Python in Excel</span>
+                    <span class="skill-tag">SQL</span>
+                    <span class="skill-tag">Power BI</span>
+                    <span class="skill-tag">Forecast Automation</span>
+                    <span class="skill-tag">Capacity Planning</span>
+                    <span class="skill-tag">Machine Learning Regressions</span>
+                </div>
+            </div>
+            <div class="skill-category">
+                <h3>Finance & Strategy</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">API Business Forecasting</span>
+                    <span class="skill-tag">Cloud & AI Economics</span>
+                    <span class="skill-tag">P&L Management</span>
+                    <span class="skill-tag">Strategic Partnerships</span>
+                    <span class="skill-tag">Long-range Compute Planning</span>
+                    <span class="skill-tag">Executive Communication</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EDUCATION -->
+        <div class="section-title">Education</div>
+        <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 8px; border-left: 3px solid var(--accent-green);">
+            <div style="font-weight: 600; font-size: 1.1rem;">Indiana University, Kelley School of Business</div>
+            <div style="color: var(--text-secondary);">Bachelor of Science in Business with Distinction</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Majors: Finance, Technology Management | May 2020</div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Connor Hankins. Built with semantic HTML5 & CSS Grid.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- PHOTO UPLOAD HANDLER (Fixes Preview Issues) ---
+        function updateProfilePhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = document.getElementById('profile-img');
+                    const fallback = document.getElementById('fallback-avatar');
+                    
+                    img.src = e.target.result; // Sets base64 source
+                    img.style.display = 'block';
+                    fallback.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // --- CANVAS ANIMATION (THE "AI NEURAL NET" VIBE) ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function init() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                
+                // Draw connections
+                for (let j = index + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(66, 133, 244, ${0.1 - distance/1500})`; // Blue connections
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', () => {
+            resize();
+            init();
+        });
+        
+        resize();
+        init();
+        animate();
+    </script>
+</body>
+</html>
